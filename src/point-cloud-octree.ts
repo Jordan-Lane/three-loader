@@ -5,7 +5,13 @@ import { PointCloudMaterial, PointSizeType } from './materials';
 import { PointCloudOctreeNode } from './point-cloud-octree-node';
 import { PickParams, PointCloudOctreePicker } from './point-cloud-octree-picker';
 import { PointCloudTree } from './point-cloud-tree';
-import { IPointCloudGeometryNode, IPointCloudTreeNode, IPotree, PCOGeometry, PickPoint } from './types';
+import {
+  IPointCloudGeometryNode,
+  IPointCloudTreeNode,
+  IPotree,
+  PCOGeometry,
+  PickPoint,
+} from './types';
 import { computeTransformedBoundingBox } from './utils/bounds';
 
 export class PointCloudOctree extends PointCloudTree {
@@ -30,11 +36,7 @@ export class PointCloudOctree extends PointCloudTree {
   private visibleBounds: Box3 = new Box3();
   private picker: PointCloudOctreePicker | undefined;
 
-  constructor(
-    potree: IPotree,
-    pcoGeometry: PCOGeometry,
-    material?: PointCloudMaterial,
-  ) {
+  constructor(potree: IPotree, pcoGeometry: PCOGeometry, material?: PointCloudMaterial) {
     super();
 
     this.name = '';
