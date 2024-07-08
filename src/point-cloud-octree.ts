@@ -1,4 +1,4 @@
-import { Box3, Camera, Object3D, Points, Ray, Sphere, Vector3, WebGLRenderer } from 'three';
+import { Box3, Intersection, Object3D, Points, Ray, Raycaster, Sphere, Vector3 } from 'three';
 import { DEFAULT_MIN_NODE_PIXEL_SIZE } from './constants';
 import { OctreeGeometry } from './loading2/octree-geometry';
 import { PointCloudMaterial, PointSizeType } from './materials';
@@ -16,6 +16,8 @@ import { computeTransformedBoundingBox } from './utils/bounds';
 
 export class PointCloudOctree extends PointCloudTree {
   potree: IPotree;
+  picker: PointCloudOctreePicker | undefined;
+
   disposed: boolean = false;
   pcoGeometry: PCOGeometry;
   boundingBox: Box3;
@@ -33,8 +35,10 @@ export class PointCloudOctree extends PointCloudTree {
   visibleGeometry: IPointCloudGeometryNode[] = [];
   numVisiblePoints: number = 0;
   showBoundingBox: boolean = false;
+
+  intersection: PickPoint | null = null;
+
   private visibleBounds: Box3 = new Box3();
-  private picker: PointCloudOctreePicker | undefined;
 
   constructor(potree: IPotree, pcoGeometry: PCOGeometry, material?: PointCloudMaterial) {
     super();
@@ -108,6 +112,7 @@ export class PointCloudOctree extends PointCloudTree {
     points.position.copy(geometryNode.boundingBox.min);
     points.frustumCulled = false;
     points.onBeforeRender = PointCloudMaterial.makeOnBeforeRender(this, node);
+    points.raycast = () => {}; // Disable default raycast for points... we use a custom pick raycast instead
 
     if (parent) {
       parent.sceneNode.add(points);
@@ -217,19 +222,25 @@ export class PointCloudOctree extends PointCloudTree {
     return this.visibleBounds.applyMatrix4(this.matrixWorld);
   }
 
-  pick(
-    renderer: WebGLRenderer,
-    camera: Camera,
-    ray: Ray,
-    params: Partial<PickParams> = {},
-  ): PickPoint | null {
-    this.picker = this.picker || new PointCloudOctreePicker();
-    return this.picker.pick(renderer, camera, ray, [this], params);
+  pick(ray: Ray, params: Partial<PickParams> = {}): PickPoint | null {
+    if (!this.picker) {
+      return null;
+    }
+
+    return this.picker.pick(ray, [this], params);
   }
 
   get progress() {
     return this.visibleGeometry.length === 0
       ? 0
       : this.visibleNodes.length / this.visibleGeometry.length;
+  }
+
+  raycast(raycaster: Raycaster, _intersects: Intersection[]) {
+    if (!raycaster.ray.intersectBox(this.getBoundingBoxWorld(), new Vector3())) {
+      return;
+    }
+
+    this.intersection = this.pick(raycaster.ray);
   }
 }

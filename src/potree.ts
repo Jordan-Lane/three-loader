@@ -113,8 +113,8 @@ export class Potree implements IPotree {
     ray: Ray,
     params: Partial<PickParams> = {},
   ): PickPoint | null {
-    Potree.picker = Potree.picker || new PointCloudOctreePicker();
-    return Potree.picker.pick(renderer, camera, ray, pointClouds, params);
+    Potree.picker = Potree.picker || new PointCloudOctreePicker(renderer, camera);
+    return Potree.picker.pick(ray, pointClouds, params);
   }
 
   get pointBudget(): number {
@@ -203,20 +203,20 @@ export class Potree implements IPotree {
       if (isTreeNode(node)) {
         this.updateTreeNodeVisibility(pointCloud, node, visibleNodes);
         pointCloud.visibleGeometry.push(node.geometryNode);
+
+        const halfHeight =
+          0.5 * renderer.getSize(this._rendererSize).height * renderer.getPixelRatio();
+
+        this.updateChildVisibility(
+          queueItem,
+          priorityQueue,
+          pointCloud,
+          node,
+          cameraPositions[pointCloudIndex],
+          camera,
+          halfHeight,
+        );
       }
-
-      const halfHeight =
-        0.5 * renderer.getSize(this._rendererSize).height * renderer.getPixelRatio();
-
-      this.updateChildVisibility(
-        queueItem,
-        priorityQueue,
-        pointCloud,
-        node,
-        cameraPositions[pointCloudIndex],
-        camera,
-        halfHeight,
-      );
     } // end priority queue loop
 
     const numNodesToLoad = Math.min(this.maxNumNodesLoading, unloadedGeometry.length);

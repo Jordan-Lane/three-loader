@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import { PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { PointCloudOctree, Potree, PotreeVersion } from '../src';
@@ -11,7 +11,7 @@ export class Viewer {
   /**
    * The ThreeJS renderer used to render the scene.
    */
-  private renderer = new WebGLRenderer();
+  renderer = new WebGLRenderer();
   /**
    * Our scene which will contain the point cloud.
    */
@@ -24,6 +24,11 @@ export class Viewer {
    * Controls which update the position of the camera.
    */
   cameraControls!: any;
+  /**
+   * Mouse pointer and raycaster
+   */
+  pointer = new Vector2(0, 0);
+  raycaster = new Raycaster();
   /**
    * Out potree instance which handles updating point clouds, keeps track of loaded nodes, etc.
    */
@@ -61,6 +66,8 @@ export class Viewer {
     this.resize();
     window.addEventListener('resize', this.resize);
 
+    this.renderer.domElement.addEventListener('mousemove', this.onPointerMove);
+
     requestAnimationFrame(this.loop);
   }
 
@@ -74,6 +81,7 @@ export class Viewer {
     }
 
     window.removeEventListener('resize', this.resize);
+    this.renderer.domElement.removeEventListener('mouseover', this.onPointerMove);
 
     // TODO: clean point clouds or other objects added to the scene.
 
@@ -126,6 +134,9 @@ export class Viewer {
     // camera control system.
     this.cameraControls.update();
 
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    this.raycaster.intersectObjects(this.scene.children, false);
+
     // This is where most of the potree magic happens. It updates the
     // visiblily of the octree nodes based on the camera frustum and it
     // triggers any loads/unloads which are necessary to keep the number
@@ -170,5 +181,14 @@ export class Viewer {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+  };
+
+  /**
+   * Triggered anytime the mouse moves over the ThreeJS Canvas
+   * @param event
+   */
+  onPointerMove = (event: MouseEvent) => {
+    this.pointer.x = (event.clientX / this.renderer?.domElement?.clientWidth) * 2 - 1 ?? 0;
+    this.pointer.y = -(event.clientY / this.renderer?.domElement?.clientHeight) * 2 + 1 ?? 0;
   };
 }

@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { ClipMode, PointCloudOctree } from '../src';
+import { ClipMode, PointCloudOctree, PointCloudOctreePicker } from '../src';
 import { Viewer } from './viewer';
 
 require('./main.css');
@@ -87,6 +87,10 @@ function setupPointCloud(version: 'v1' | 'v2', file: string, url: string): void 
       pco.material.size = 1.0;
       pco.material.clipMode = ClipMode.CLIP_HORIZONTALLY;
       pco.material.clipExtent = [0.0, 0.0, 1.0, 1.0];
+
+      // [TODO] Change this
+      // Picker is added to the pco for raycasting support
+      pco.picker = new PointCloudOctreePicker(viewer.renderer, viewer.camera);
 
       const camera = viewer.camera;
       camera.far = 1000;
