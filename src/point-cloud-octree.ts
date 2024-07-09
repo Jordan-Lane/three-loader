@@ -36,8 +36,6 @@ export class PointCloudOctree extends PointCloudTree {
   numVisiblePoints: number = 0;
   showBoundingBox: boolean = false;
 
-  intersection: PickPoint | null = null;
-
   private visibleBounds: Box3 = new Box3();
 
   constructor(potree: IPotree, pcoGeometry: PCOGeometry, material?: PointCloudMaterial) {
@@ -236,11 +234,21 @@ export class PointCloudOctree extends PointCloudTree {
       : this.visibleNodes.length / this.visibleGeometry.length;
   }
 
-  raycast(raycaster: Raycaster, _intersects: Intersection[]) {
+  raycast(raycaster: Raycaster, intersects: Intersection[]) {
     if (!raycaster.ray.intersectBox(this.getBoundingBoxWorld(), new Vector3())) {
       return;
     }
 
-    this.intersection = this.pick(raycaster.ray);
+    const pickPoint = this.pick(raycaster.ray);
+
+    if (!pickPoint || !pickPoint.position) {
+      return;
+    }
+
+    intersects.push({
+      distance: pickPoint.position.distanceTo(raycaster.ray.origin),
+      point: pickPoint.position,
+      object: this,
+    });
   }
 }
