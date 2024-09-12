@@ -275,49 +275,49 @@ export class NodeLoader {
 
 const tmpVec3 = new Vector3();
 function createChildAABB(aabb: Box3, index: number) {
-	const min = aabb.min.clone();
-	const max = aabb.max.clone();
-	const size = tmpVec3.subVectors(max, min);
+  const min = aabb.min.clone();
+  const max = aabb.max.clone();
+  const size = tmpVec3.subVectors(max, min);
 
-	if ((index & 0b0001) > 0) {
-		min.z += size.z / 2;
-	} else {
-		max.z -= size.z / 2;
-	}
+  if ((index & 0b0001) > 0) {
+    min.z += size.z / 2;
+  } else {
+    max.z -= size.z / 2;
+  }
 
-	if ((index & 0b0010) > 0) {
-		min.y += size.y / 2;
-	} else {
-		max.y -= size.y / 2;
-	}
+  if ((index & 0b0010) > 0) {
+    min.y += size.y / 2;
+  } else {
+    max.y -= size.y / 2;
+  }
 
-	if ((index & 0b0100) > 0) {
-		min.x += size.x / 2;
-	} else {
-		max.x -= size.x / 2;
-	}
+  if ((index & 0b0100) > 0) {
+    min.x += size.x / 2;
+  } else {
+    max.x -= size.x / 2;
+  }
 
-	return new Box3(min, max);
+  return new Box3(min, max);
 }
 
 function appendBuffer(buffer1: any, buffer2: any) {
-	var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
-	tmp.set(new Uint8Array(buffer1), 0);
-	tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
-	return tmp.buffer;
+  var tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
+  tmp.set(new Uint8Array(buffer1), 0);
+  tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
+  return tmp.buffer;
 }
 
 const typenameTypeattributeMap = {
-	double: PointAttributeTypes.DATA_TYPE_DOUBLE,
-	float: PointAttributeTypes.DATA_TYPE_FLOAT,
-	int8: PointAttributeTypes.DATA_TYPE_INT8,
-	uint8: PointAttributeTypes.DATA_TYPE_UINT8,
-	int16: PointAttributeTypes.DATA_TYPE_INT16,
-	uint16: PointAttributeTypes.DATA_TYPE_UINT16,
-	int32: PointAttributeTypes.DATA_TYPE_INT32,
-	uint32: PointAttributeTypes.DATA_TYPE_UINT32,
-	int64: PointAttributeTypes.DATA_TYPE_INT64,
-	uint64: PointAttributeTypes.DATA_TYPE_UINT64
+  double: PointAttributeTypes.DATA_TYPE_DOUBLE,
+  float: PointAttributeTypes.DATA_TYPE_FLOAT,
+  int8: PointAttributeTypes.DATA_TYPE_INT8,
+  uint8: PointAttributeTypes.DATA_TYPE_UINT8,
+  int16: PointAttributeTypes.DATA_TYPE_INT16,
+  uint16: PointAttributeTypes.DATA_TYPE_UINT16,
+  int32: PointAttributeTypes.DATA_TYPE_INT32,
+  uint32: PointAttributeTypes.DATA_TYPE_UINT32,
+  int64: PointAttributeTypes.DATA_TYPE_INT64,
+  uint64: PointAttributeTypes.DATA_TYPE_UINT64,
 };
 
 type AttributeType = keyof typeof typenameTypeattributeMap;
@@ -348,25 +348,25 @@ export interface Attribute {
 }
 
 export interface Metadata {
-	version: string;
-	name: string;
-	description: string;
-	points: number;
-	projection: string;
-	hierarchy: {
-		firstChunkSize: number;
-		stepSize: number;
-		depth: number;
-	};
-	offset: [number, number, number];
-	scale: [number, number, number];
-	spacing: number;
-	boundingBox: {
-		min: [number, number, number],
-		max: [number, number, number],
-	};
-	encoding: string;
-	attributes: Attribute[];
+  version: string;
+  name: string;
+  description: string;
+  points: number;
+  projection: string;
+  hierarchy: {
+    firstChunkSize: number;
+    stepSize: number;
+    depth: number;
+  };
+  offset: [number, number, number];
+  scale: [number, number, number];
+  spacing: number;
+  boundingBox: {
+    min: [number, number, number];
+    max: [number, number, number];
+  };
+  encoding: string;
+  attributes: Attribute[];
 }
 
 export class OctreeLoader {
