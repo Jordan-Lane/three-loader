@@ -43,15 +43,16 @@ class PointAttribute {
 
   public initialRange?: RangeType;
 
-  constructor(
-    public name: string,
-    public type: PointAttributeTypeType,
-    public numElements: number,
-    public range: RangeType = [Infinity, -Infinity],
-  ) {
-    this.byteSize = this.numElements * this.type.size;
-    this.description = '';
-  }
+	constructor(
+		public name: string,
+		public type: PointAttributeTypeType,
+		public numElements: number,
+		public range: RangeType = [Infinity, -Infinity],
+		public uri: string | undefined = undefined
+	) {
+		this.byteSize = this.numElements * this.type.size;
+		this.description = '';
+	}
 }
 
 export { PointAttribute };
@@ -93,47 +94,51 @@ type PAVectorType = {
 };
 
 export class PointAttributes {
-  constructor(
-    pointAttributes?: string[],
-    public attributes: PointAttribute[] = [],
-    public byteSize: number = 0,
-    public size: number = 0,
-    public vectors: PAVectorType[] = [],
-  ) {
-    if (pointAttributes != null) {
-      for (let i = 0; i < pointAttributes.length; i++) {
-        const pointAttributeName = pointAttributes[i];
-        const pointAttribute = POINT_ATTRIBUTES[pointAttributeName];
-        this.attributes.push(pointAttribute);
-        this.byteSize += pointAttribute.byteSize;
-        this.size++;
-      }
-    }
-  }
 
-  add(pointAttribute: PointAttribute) {
-    this.attributes.push(pointAttribute);
-    this.byteSize += pointAttribute.byteSize;
-    this.size++;
-  }
+	constructor(pointAttributes?: string[],
+				public attributes: PointAttribute[] = [],
+				public byteSize: number = 0,
+				public size: number = 0,
+				public vectors: PAVectorType[]= []
+	) {
 
-  addVector(vector: PAVectorType) {
-    this.vectors.push(vector);
-  }
+		if (pointAttributes != null) {
+			for (let i = 0; i < pointAttributes.length; i++) {
+				const pointAttributeName = pointAttributes[i];
+				const pointAttribute = POINT_ATTRIBUTES[pointAttributeName];
+				this.attributes.push(pointAttribute);
+				this.byteSize += pointAttribute.byteSize;
+				this.size++;
+			}
+		}
+	}
 
-  hasNormals() {
-    for (const name in this.attributes) {
-      const pointAttribute = this.attributes[name];
-      if (
-        pointAttribute === POINT_ATTRIBUTES.NORMAL_SPHEREMAPPED ||
-        pointAttribute === POINT_ATTRIBUTES.NORMAL_FLOATS ||
-        pointAttribute === POINT_ATTRIBUTES.NORMAL ||
-        pointAttribute === POINT_ATTRIBUTES.NORMAL_OCT16
-      ) {
-        return true;
-      }
-    }
+	add(pointAttribute: PointAttribute) {
+		this.attributes.push(pointAttribute);
+		this.byteSize += pointAttribute.byteSize;
+		this.size++;
+	}
 
-    return false;
-  }
+	addVector(vector: PAVectorType) {
+		this.vectors.push(vector);
+	}
+
+	hasNormals() {
+		for (const name in this.attributes) {
+			const pointAttribute = this.attributes[name];
+			if (
+				pointAttribute === POINT_ATTRIBUTES.NORMAL_SPHEREMAPPED ||
+				pointAttribute === POINT_ATTRIBUTES.NORMAL_FLOATS ||
+				pointAttribute === POINT_ATTRIBUTES.NORMAL ||
+				pointAttribute === POINT_ATTRIBUTES.NORMAL_OCT16) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	getAttribute(attributeName: string): PointAttribute | undefined {
+		return this.attributes.find(attr => attr.name === attributeName);
+	}
 }
